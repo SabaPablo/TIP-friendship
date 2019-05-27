@@ -1,19 +1,25 @@
 {
   "name": "tip-friendship",
   "version": "1.0.0",
-  "description": "microservice-friendship relations for Pet Heroes app",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npm test"
+    "test": "npm test",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wisaku/TIP-friendship.git"
   },
-  "author": "Ana Redonda - Pablo Sabaliauskas",
+  "author": "Ana - Pablo",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/wisaku/TIP-friendship/issues"
   },
-  "homepage": "https://github.com/wisaku/TIP-friendship#readme"
+  "homepage": "https://github.com/wisaku/TIP-friendship#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "body-parser": "^1.19.0",
+    "neo4j-driver": "^1.7.4"
+  }
 }
