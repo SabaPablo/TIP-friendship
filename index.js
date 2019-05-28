@@ -1,14 +1,20 @@
 const express = require("express");
-const neo4j = require('./neo4j')
+const neo4j = require('neo4j-driver').v1;
 const bodyParser = require('body-parser');
 const app = express();
+const dotenv = require('dotenv');
+
+dotenv.config();
+console.log(`Your port is ${process.env.PORT}`); // 8626
+
+
+var driver = neo4j.driver(process.env.URL_DB, neo4j.auth.basic(process.env.USER_DB, process.env.PASS_DB));
 
 // Tell it to use Neo4j middleware
-app.use(neo4j);
-
 app.use(bodyParser.urlencoded({
     extended: false
 }));
+
 
 app.use(bodyParser.json());
 
@@ -24,7 +30,8 @@ app.use(function(req, res, next) {
 // Example Route
 app.post('/user', (req, res) => {
     // Create Driver session
-    const session = req.driver.session();
+    const session = driver.session();
+
 
     // Run Cypher query
     const cypher = 'CREATE (a:User { mail : "'+req.body.mail+'" })';
@@ -53,7 +60,7 @@ app.post('/user', (req, res) => {
 // Example Route
 app.post('/relationship', (req, res) => {
     // Create Driver session
-    const session = req.driver.session();
+    const session = driver.session();
 
     // Run Cypher query
     const cypher = 'MATCH (a:User),(b:User)'+
@@ -82,7 +89,7 @@ app.post('/relationship', (req, res) => {
 
 app.get('/friends', (req, res) => {
     // Create Driver session
-    const session = req.driver.session();
+    const session = driver.session();
 
     // Run Cypher query
     const cypher = 'MATCH (user { mail: '+ req.query.mail+' })--(friend)'+
@@ -92,23 +99,17 @@ app.get('/friends', (req, res) => {
     session.run(cypher,{mail:neo4j.String})
         .then(result => {
             let array = [];
-
-            async function printFiles () {
-
+            async function getFriends () {
                 result.records.forEach(async (record) => {
-                    console.log( record.get("mails") ); // Access the name property from the RETURN statement
                     array.push(record.get("mails"))
                 })
             }
-
-            printFiles();
-
+            getFriends();
             res.status(200).json({
                 ok:true,
                 message:'friends founds!',
                 relation : array
             })
-
         })
         .catch(e => {
             // Output the error
@@ -125,7 +126,7 @@ app.get('/friends', (req, res) => {
 // Example Route
 app.get('/', (req, res) => {
     // Create Driver session
-    const session = req.driver.session();
+    const session = driver.session();
 
     // Run Cypher query
     const cypher = 'MATCH (n) RETURN count(n) as count';
@@ -150,6 +151,6 @@ app.get('/', (req, res) => {
 
 
 
-app.listen(3200, () => {
-    console.log("El servidor está inicializado en el puerto 3200");
+app.listen(process.env.PORT, () => {
+    console.log(`El servidor está inicializado en el puerto ${process.env.PORT}`);
 });
